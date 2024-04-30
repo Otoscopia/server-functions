@@ -16,8 +16,6 @@ final String api = Platform.environment["API"]!;
 
 final String databaseID = Platform.environment["DATABASE"]!;
 final String usersCollection = Platform.environment["USER_COLLECTION"]!;
-final String schoolCollection = Platform.environment["SCHOOL_COLLECTION"]!;
-final String assignmentCollection = Platform.environment["ASSIGNMENT_COLLECTION"]!;
 
 final String adminId = Platform.environment["ADMIN_ID"]!;
 
