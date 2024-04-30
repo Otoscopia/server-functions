@@ -1,48 +1,74 @@
-# ⚡ Dart Starter Function
+# Appwrite Messaging Function
 
-A simple starter function. Edit `lib/main.dart` to get started and create something awesome! 🚀
+This function is responsible for email and text notifications for various events in your application. It provides functionality for account creation, account validation, account deletion, new doctor's patient, new doctor's remarks, password reset, and enabling/disabling two-factor authentication.
 
-## 🧰 Usage
+## Prerequisites
 
-### GET /
+Before using this function, make sure you have the following:
 
-- Returns a "Hello, World!" message.
+- An Appwrite backend server version 1.5.5 set up
+- Appwrite SDK installed in your project
+- SMTP server credentials for sending emails
+- SMS gateway credentials for sending text messages
 
-**Response**
+## Installation
 
-Sample `200` Response:
+1. Clone this repository:
 
-```text
-Hello, World!
-```
+  ```bash
+  git clone https://github.com/Otoscopia/server-functions
+  ```
 
-### POST, PUT, PATCH, DELETE /
+1. Install the required dependencies:
 
-- Returns a "Learn More" JSON response.
+  ```bash
+  cd server-functions/messaging
+  dart pub get
+  ```
 
-**Response**
+1. Configure the function:
 
-Sample `200` Response:
+- Open your appwrite console and navigate to `Messaging` section.
+- Click on `Providers` section and create provider.
+- Add your Email or SMS gateway credentials.
+- Customize the email and text message templates in the `templates` directory to match your application's branding and content.
 
-```json
-{
-  "motto": "Build like a team of hundreds_",
-  "learn": "https://appwrite.io/docs",
-  "connect": "https://appwrite.io/discord",
-  "getInspired": "https://builtwith.appwrite.io"
+1. Deploy the function to your Appwrite server:
+
+  ```bash
+  appwrite functions createTag \
+    --name messaging \
+    --runtime dart-3.1 \
+    --handler messaging.handler \
+    --environment '{"APPWRITE_FUNCTION_PROJECT_ID":"your-project-id"}' \
+    --tag latest \
+    --code ./
+  ```
+
+## Usage
+
+To use the messaging function, you can call it from your application whenever you need to send email or text notifications. Here's an example of how to use it:
+
+```dart
+class AppwriteMessaging {
+  final Functions _function;
+
+  AppwriteMessaging() : _function = Functions(client);
+
+  Future<void> sendMessage({
+    required String messageType = "password_reset",
+    Map<String, dynamic> data,
+  }) async {
+    await _function.createExecution(
+      functionId: Env.messaging,
+      body: json.encode({"message_type": "password_reset", "data": data}),
+      path: '/',
+      method: ExecutionMethod.pOST,
+    );
+  }
 }
 ```
 
-## ⚙️ Configuration
+## Contributing
 
-| Setting           | Value           |
-|-------------------|-----------------|
-| Runtime           | Dart (2.17)     |
-| Entrypoint        | `lib/main.dart` |
-| Build Commands    | `dart pub get`  |
-| Permissions       | `any`           |
-| Timeout (Seconds) | 15              |
-
-## 🔒 Environment Variables
-
-No environment variables required.
+Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please open an issue or submit a pull request.
