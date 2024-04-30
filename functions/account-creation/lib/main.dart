@@ -1,34 +1,147 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dart_appwrite/dart_appwrite.dart';
+import 'package:dart_appwrite/enums.dart';
 
-// This is your Appwrite function
-// It's executed each time we get a request
-Future<dynamic> main(final context) async {
-// Why not try the Appwrite SDK?
-  //
-  // final client = Client()
-  //    .setEndpoint('https://cloud.appwrite.io/v1')
-  //    .setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'])
-  //    .setKey(Platform.environment['APPWRITE_API_KEY']);
+final String projectEndpoint = Platform.environment["APPWRITE_ENDPOINT"]!;
+final String projectID = Platform.environment["APPWRITE_PROJECT"]!;
+final String api = Platform.environment["API"]!;
 
-  // You can log messages to the console
-  context.log('Hello, Logs!');
+final String databaseID = Platform.environment["DATABASE"]!;
+final String usersCollection = Platform.environment["USER_COLLECTION"]!;
+final String schoolCollection = Platform.environment["SCHOOL_COLLECTION"]!;
+final String assignmentCollection = Platform.environment["ASSIGNMENT_COLLECTION"]!;
 
-  // If something goes wrong, log an error
-  context.error('Hello, Errors!');
+final String adminId = Platform.environment["ADMIN_ID"]!;
 
-  // The `req` object contains the request data
-  if (context.req.method == 'GET') {
-    // Send a response with the res object helpers
-    // `res.send()` dispatches a string back to the client
-    return context.res.send('Hello, World!');
+final String messageID = Platform.environment["MESSAGE_FUNCTION"]!;
+
+Future<dynamic> accountCreation(final context) async {
+  context.log("Setting up Appwrite client...");
+  final client = Client().setEndpoint(projectEndpoint).setProject(projectID).setKey(api);
+
+  context.log("Setting up Database...");
+  final database = Databases(client);
+
+  context.log("Setting up users...");
+  final user = Users(client);
+
+  context.log("Setting up function...");
+  final function = Functions(client);
+
+  context.log("Decoding body...");
+  final body = json.decode(context.req.bodyRaw);
+  final data = body["data"];
+
+  try {
+    final userID = data["userId"];
+    final userName = data["name"];
+    final userEmail = data["email"];
+    final userPhone = data["phone"];
+    final userRole = data["role"];
+
+    context.log("Creating user...");
+    await database.createDocument(
+      databaseId: databaseID,
+      collectionId: usersCollection,
+      documentId: userID,
+      data: {
+        "name": userName,
+        "email": userEmail,
+        "phone": userPhone,
+        "workAddress": data["workAddress"],
+        "role": userRole,
+      },
+      permissions: [
+        Permission.update(Role.user(userID)),
+        Permission.delete(Role.label("admin"))
+      ],
+    );
+
+    context.log("Updating user...");
+    await user.updatePhone(userId: userID, number: userPhone);
+    await user.updateLabels(userId: userID, labels: [userRole]);
+
+    if (userRole == "nurse") {
+      context.log("Creating assignment...");
+      final schools = List<dynamic>.from(data["school"]);
+
+      context.log("Updating school data...");
+      for (final school in schools) {
+        await database.createDocument(
+          databaseId: databaseID,
+          collectionId: assignmentCollection,
+          documentId: ID.unique(),
+          data: {
+            "isActive": true,
+            "nurse": userID,
+            "school": school,
+          },
+        );
+
+        await database.updateDocument(
+          databaseId: databaseID,
+          collectionId: schoolCollection,
+          documentId: school,
+          data: {
+            "isAssigned": true,
+          },
+        );
+      }
+    }
+
+    context.log("Updating user...");
+    await user.updatePhone(userId: userID, number: userPhone);
+    await user.updateLabels(userId: userID, labels: [userRole]);
+
+    if (userRole == "nurse") {
+      context.log("Creating assignment...");
+      final schools = List<dynamic>.from(data["school"]);
+
+      context.log("Updating school data...");
+      for (final school in schools) {
+        await database.createDocument(
+          databaseId: databaseID,
+          collectionId: assignmentCollection,
+          documentId: ID.unique(),
+          data: {
+            "isActive": true,
+            "nurse": userID,
+            "school": school,
+          },
+        );
+
+        await database.updateDocument(
+          databaseId: databaseID,
+          collectionId: schoolCollection,
+          documentId: school,
+          data: {
+            "isAssigned": true,
+          },
+        );
+      }
+    }
+
+    await function.createExecution(
+      functionId: messageID,
+      body: json.encode({
+        "message_type": "password_reset",
+        "data": {
+          "userId": userID,
+          "name": userName,
+          "role": userRole,
+        },
+      }),
+      path: '/',
+      method: ExecutionMethod.pOST,
+    );
+
+    return context.res.json({
+      "data": "Account creation successfull.",
+    });
+  } catch (e) {
+    throw Exception(e);
   }
-
-  // `res.json()` is a handy helper for sending JSON
-  return context.res.json({
-    'motto': 'Build like a team of hundreds_',
-    'learn': 'https://appwrite.io/docs',
-    'connect': 'https://appwrite.io/discord',
-    'getInspired': 'https://builtwith.appwrite.io',
-  });
 }
