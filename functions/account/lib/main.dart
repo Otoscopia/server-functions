@@ -41,7 +41,7 @@ Future<dynamic> main(final context) async {
     final userPhone = body["phone"];
     final userRole = body["role"];
 
-    context.log("Creating user...");
+    context.log("Creating user data...");
     await database.createDocument(
       databaseId: databaseID,
       collectionId: usersCollection,
@@ -59,7 +59,7 @@ Future<dynamic> main(final context) async {
       ],
     );
 
-    context.log("Updating user...");
+    context.log("Updating user account...");
     await user.updatePhone(userId: userID, number: userPhone);
     await user.updateLabels(userId: userID, labels: [userRole]);
 
