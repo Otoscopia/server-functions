@@ -33,14 +33,13 @@ Future<dynamic> accountCreation(final context) async {
 
   context.log("Decoding body...");
   final body = json.decode(context.req.bodyRaw);
-  final data = body["data"];
 
   try {
-    final userID = data["userId"];
-    final userName = data["name"];
-    final userEmail = data["email"];
-    final userPhone = data["phone"];
-    final userRole = data["role"];
+    final userID = body["userId"];
+    final userName = body["name"];
+    final userEmail = body["email"];
+    final userPhone = body["phone"];
+    final userRole = body["role"];
 
     context.log("Creating user...");
     await database.createDocument(
@@ -51,7 +50,7 @@ Future<dynamic> accountCreation(final context) async {
         "name": userName,
         "email": userEmail,
         "phone": userPhone,
-        "workAddress": data["workAddress"],
+        "workAddress": body["workAddress"],
         "role": userRole,
       },
       permissions: [
@@ -66,7 +65,7 @@ Future<dynamic> accountCreation(final context) async {
 
     if (userRole == "nurse") {
       context.log("Creating assignment...");
-      final schools = List<dynamic>.from(data["school"]);
+      final schools = List<dynamic>.from(body["school"]);
 
       context.log("Updating school data...");
       for (final school in schools) {
@@ -98,7 +97,7 @@ Future<dynamic> accountCreation(final context) async {
 
     if (userRole == "nurse") {
       context.log("Creating assignment...");
-      final schools = List<dynamic>.from(data["school"]);
+      final schools = List<dynamic>.from(body["school"]);
 
       context.log("Updating school data...");
       for (final school in schools) {
@@ -127,7 +126,7 @@ Future<dynamic> accountCreation(final context) async {
     await function.createExecution(
       functionId: messageID,
       body: json.encode({
-        "message_type": "password_reset",
+        "message_type": "account_creation",
         "data": {
           "userId": userID,
           "name": userName,
