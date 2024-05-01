@@ -18,7 +18,7 @@ final String adminId = Platform.environment["ADMIN_ID"]!;
 
 final String messageID = Platform.environment["MESSAGE_FUNCTION"]!;
 
-Future<dynamic> accountCreation(final context) async {
+Future<dynamic> main(final context) async {
   context.log("Setting up Appwrite client...");
   final client = Client().setEndpoint(projectEndpoint).setProject(projectID).setKey(api);
 
