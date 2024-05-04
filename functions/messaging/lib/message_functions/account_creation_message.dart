@@ -19,8 +19,6 @@ Future<dynamic> accountCreation(context) async {
   final body = json.decode(context.req.bodyRaw);
   final data = body["data"];
 
-  context.log(body.toString());
-
   try {
     final userID = data["userId"];
     final userName = data["name"];
