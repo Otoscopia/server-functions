@@ -27,7 +27,7 @@ String kUserVerified(
 ) =>
     """
 <html>
-  <p>Dear <b>$userName<b>,</p>
+  <p>Dear <b>$userName</b>,</p>
 
   <p>Your Otoscopia User Profile has been verified!</p>
 
@@ -46,7 +46,7 @@ String kNewUserAccountAdmin(
 ) =>
     """
 <html>
-  <p>Dear admin <b>$adminName<b>,</p>
+  <p>Dear admin <b>$adminName</b>,</p>
 
   <p>A new account has been created with the id of <b>$userId</b> and role of <b>$userRole</b>. Please verify the account status so that they can continue with the application.</p>
 </html>
@@ -58,7 +58,7 @@ String kNewUserAccountClient(
 ) =>
     """
 <html>
-  <p>Dear <b>$userName<b>,</p>
+  <p>Dear <b>$userName</b>,</p>
 
   <p>Thank you for creating your User Profile! You are halfway in opening your Otoscopia account with Otoscopia Team.</p>
 
@@ -97,7 +97,7 @@ String kDeleteAccountAdmin(
 ) =>
     """
 <html>
-  <p>Dear admin <b>$adminName<b>,</p>
+  <p>Dear admin <b>$adminName</b>,</p>
 
   <p>User <b>$userName</b> has requested to delete their account with the id of $userId, Please verify if their account can be delete and notify the user with their email $userEmail.</p>
 </html>
@@ -108,7 +108,7 @@ String kDeleteAccountClient(
 ) =>
     """
 <html>
-  <p>Dear <b>$userName<b>,</p>
+  <p>Dear <b>$userName</b>,</p>
 
   <p>You have requested to delete your account, Please wait for the admin response before to delete your account.</p>
 
@@ -141,7 +141,7 @@ String kResetPassword(
 ) =>
     """
 <html>
-  <p>Dear <b>$userName<b>,</p>
+  <p>Dear <b>$userName</b>,</p>
 
   <p>You have modified your password, If you haven't change your password, please <a href="mailto:laurencetroyv@gmail.com, laurencetroy.valdez@g.msuiit.edu.ph">contact theadmin</a> via email.</p>
 
