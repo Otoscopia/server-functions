@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
-import 'package:messaging_function/main.dart';
+import 'package:messaging_function/constants/constants.dart';
 
 Future<dynamic> passwordReset(context) async {
   context.log("Setting up Appwrite client...");
@@ -30,7 +30,7 @@ Future<dynamic> passwordReset(context) async {
     messaging.createEmail(
       messageId: ID.unique(),
       subject: "Account Password Modification Notice",
-      content: kUserContent(user.data['name']),
+      content: kResetPassword(user.data['name']),
       html: true,
       users: [user.$id],
     );
@@ -42,24 +42,3 @@ Future<dynamic> passwordReset(context) async {
     throw Exception(e);
   }
 }
-
-String kUserContent(
-  String userName,
-) =>
-    """
-<html>
-  <p>Dear <b>$userName<b>,</p>
-
-  <p>You have modified your password, If you haven't change your password, please <a href="mailto:laurencetroyv@gmail.com, laurencetroy.valdez@g.msuiit.edu.ph">contact theadmin</a> via email.</p>
-
-  <p>Sincerely,</p>
-
-  <p>Otoscopia Team</p>
-
-  <p>
-    <i>
-      <b>Disclaimer:</b> This communication is intended solely for the use of the addressee. It may contain confidential or legally privileged information. If you are not the intended recipient, any disclosure, copying, distribution or taking any action in reliance on this communication is strictly prohibited and may be unlawful. If you received this communication in error, please notify the sender immediately and delete this communication from your system. Otoscopia is neither liable for the proper and complete transmission of this communication nor for any delay in its receipt.
-    </i>
-  </p>
-</html>
-""";
