@@ -6,36 +6,33 @@ import 'package:messaging_function/main.dart';
 
 Future<dynamic> accountCreation(context) async {
   context.log("Setting up Appwrite client...");
-  final client = Client().setEndpoint(projectEndpoint).setProject(projectID).setKey(api);
+  final client = Client()
+      .setEndpoint(projectEndpoint)
+      .setProject(projectID)
+      .setKey(api)
+      .setSelfSigned(status: true);
 
-  context.log("Setting up Messaging...");
+  context.log("Setting up Account Creation Messaging...");
   final messaging = Messaging(client);
-
-  context.log("Setting up Database...");
-  final database = Databases(client);
 
   context.log("Decoding body...");
   final body = json.decode(context.req.bodyRaw);
+  final data = body["data"];
+
+  context.log(body.toString());
 
   try {
-    final userID = body["userId"];
-    final userName = body["name"];
-    final userRole = body["role"];
-
-    context.log("Fetching admin data...");
-    final admin = await database.getDocument(
-      databaseId: databaseID,
-      collectionId: usersCollection,
-      documentId: adminId,
-    );
+    final userID = data["userId"];
+    final userName = data["name"];
+    final userRole = data["role"];
 
     context.log("Creating admin email and sending email...");
     messaging.createEmail(
       messageId: ID.unique(),
       subject: "Account Creation Notice",
-      content: kAdminContent(admin.data['name'], userID, userRole),
+      content: kAdminContent(adminName, userID, userRole),
       html: true,
-      users: [admin.$id],
+      users: [adminId],
     ).then((value) {
       context.log("Admin email status: ${value.status}");
     });
@@ -44,14 +41,12 @@ Future<dynamic> accountCreation(context) async {
     messaging.createEmail(
       messageId: ID.unique(),
       subject: "Account Creation Notice",
-      content: kUserContent(userName, admin.data['email']),
+      content: kUserContent(userName, adminEmail),
       html: true,
       users: [userID],
     );
 
-    return context.res.json({
-      "data": "Email has been Sent Successfully.",
-    });
+    context.log("Emails have been sent!...");
   } catch (e) {
     throw Exception(e);
   }
