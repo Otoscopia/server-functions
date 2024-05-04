@@ -12,7 +12,8 @@ final String api = Platform.environment["API"]!;
 final String databaseID = Platform.environment["DATABASE"]!;
 final String usersCollection = Platform.environment["USER_COLLECTION"]!;
 final String schoolCollection = Platform.environment["SCHOOL_COLLECTION"]!;
-final String assignmentCollection = Platform.environment["ASSIGNMENT_COLLECTION"]!;
+final String assignmentCollection =
+    Platform.environment["ASSIGNMENT_COLLECTION"]!;
 
 final String adminId = Platform.environment["ADMIN_ID"]!;
 
@@ -20,7 +21,11 @@ final String messageID = Platform.environment["MESSAGE_FUNCTION"]!;
 
 Future<dynamic> main(final context) async {
   context.log("Setting up Appwrite client...");
-  final client = Client().setEndpoint(projectEndpoint).setProject(projectID).setKey(api);
+  final client = Client()
+      .setEndpoint(projectEndpoint)
+      .setProject(projectID)
+      .setKey(api)
+      .setSelfSigned(status: true);
 
   context.log("Setting up Database...");
   final database = Databases(client);
@@ -55,6 +60,7 @@ Future<dynamic> main(final context) async {
       },
       permissions: [
         Permission.update(Role.user(userID)),
+        Permission.read(Role.user(userID)),
         Permission.delete(Role.label("admin"))
       ],
     );
@@ -91,38 +97,7 @@ Future<dynamic> main(final context) async {
       }
     }
 
-    context.log("Updating user...");
-    await user.updatePhone(userId: userID, number: userPhone);
-    await user.updateLabels(userId: userID, labels: [userRole]);
-
-    if (userRole == "nurse") {
-      context.log("Creating assignment...");
-      final schools = List<dynamic>.from(body["school"]);
-
-      context.log("Updating school data...");
-      for (final school in schools) {
-        await database.createDocument(
-          databaseId: databaseID,
-          collectionId: assignmentCollection,
-          documentId: ID.unique(),
-          data: {
-            "isActive": true,
-            "nurse": userID,
-            "school": school,
-          },
-        );
-
-        await database.updateDocument(
-          databaseId: databaseID,
-          collectionId: schoolCollection,
-          documentId: school,
-          data: {
-            "isAssigned": true,
-          },
-        );
-      }
-    }
-
+    context.log("Notifying messaging function...");
     await function.createExecution(
       functionId: messageID,
       body: json.encode({
@@ -138,7 +113,7 @@ Future<dynamic> main(final context) async {
     );
 
     return context.res.json({
-      "data": "Account creation successfull.",
+      "data": "Function account creation succeeded.",
     });
   } catch (e) {
     throw Exception(e);
