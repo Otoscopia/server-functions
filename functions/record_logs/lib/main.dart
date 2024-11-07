@@ -20,21 +20,50 @@ Future<dynamic> main(final context) async {
   final auth = Users(client);
   final users = await auth.list();
 
-  final response = users.users.map((user) async {
+  final futures = users.users.map((user) async {
+    context.log("Fetching users history logs...");
     final logs = await auth.listLogs(userId: user.$id);
-    final logsToMap = logs.logs.map((log) {
-      return log.toMap();
-    }).toList();
+
+    context.log("Converting users history logs...");
+    final logsToMap = logs.logs
+        .map((log) => {
+              "event": log.event,
+              "userId": log.userId,
+              "userEmail": log.userEmail,
+              "userName": log.userName,
+              "mode": log.mode,
+              "ip": log.ip,
+              "time": log.time,
+              "osCode": log.osCode,
+              "osName": log.osName,
+              "osVersion": log.osVersion,
+              "clientType": log.clientType,
+              "clientCode": log.clientCode,
+              "clientName": log.clientName,
+              "clientVersion": log.clientVersion,
+              "clientEngine": log.clientEngine,
+              "clientEngineVersion": log.clientEngineVersion,
+              "deviceName": log.deviceName,
+              "deviceBrand": log.deviceBrand,
+              "deviceModel": log.deviceModel,
+              "countryCode": log.countryCode,
+              "countryName": log.countryName,
+            })
+        .toList();
 
     return {
       "name": user.name,
       "email": user.email,
       "user_ID": user.$id,
       "role": user.labels,
-      "status": user.status,
-      "last_activity": logsToMap,
+      "last_activity": logsToMap
+      // "status": user.status,
     };
   }).toList();
 
+  context.log("Waiting for futures to complete...");
+  final response = await Future.wait(futures);
+
+  context.log("Function completed...");
   return context.res.json({"data": response});
 }
