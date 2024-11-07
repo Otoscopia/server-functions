@@ -1,4 +1,4 @@
-import 'dart:async';
+// import 'dart:async';
 import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
@@ -18,9 +18,19 @@ Future<dynamic> main(final context) async {
       .setSelfSigned(status: true);
 
   final auth = Users(client);
-  auth.list().then((value) {
-    context.log(value);
-  }).catchError((error) {
-    context.log(error);
+  final users = await auth.list();
+  return context.res.json({
+    "data": users.users
+        .map((user) => {
+              "name": user.name,
+              "email": user.email,
+              "email-verification": user.emailVerification,
+              "phone-verification": user.phoneVerification,
+              "status": user.status,
+              "mfa": user.mfa,
+              "password-last-updated": user.passwordUpdate,
+              // "password-expiration" : user.passwordExpiration,
+            })
+        .toList(),
   });
 }
