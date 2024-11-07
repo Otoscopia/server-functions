@@ -19,16 +19,22 @@ Future<dynamic> main(final context) async {
 
   final auth = Users(client);
   final users = await auth.list();
-  return context.res.json({
-    "data": users.users
-        .map((user) async => {
-              "name": user.name,
-              "email": user.email,
-              "user_ID": user.$id,
-              "role": user.labels,
-              "status": user.status,
-              "last_activity": await auth.listLogs(userId: user.$id),
-            })
-        .toList(),
-  });
+
+  final response = users.users.map((user) async {
+    final logs = await auth.listLogs(userId: user.$id);
+    final logsToMap = logs.logs.map((log) {
+      return log.toMap();
+    }).toList();
+
+    return {
+      "name": user.name,
+      "email": user.email,
+      "user_ID": user.$id,
+      "role": user.labels,
+      "status": user.status,
+      "last_activity": logsToMap,
+    };
+  }).toList();
+
+  return context.res.json({"data": response});
 }
