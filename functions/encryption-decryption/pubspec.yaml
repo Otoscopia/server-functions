@@ -5,7 +5,7 @@ environment:
   sdk: ^3.0.0
 
 dependencies:
-  dart_appwrite: ^10.1.1
+  dart_appwrite: ^14.0.0
 
 dev_dependencies:
   lints: ^2.0.0
