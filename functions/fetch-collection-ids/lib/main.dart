@@ -41,7 +41,6 @@ Future<dynamic> main(final context) async {
           'event': 'get.function.collection-ids',
           'location': body['location'],
           'ip': body['ip'],
-          'date': DateTime.parse(body['date']).toIso8601String()
         },
         permissions: [
           Permission.read(Role.user(body['user'])),
