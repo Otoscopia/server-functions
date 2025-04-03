@@ -50,6 +50,7 @@ Future<dynamic> main(final context) async {
 
     context.log('Function execution completed');
     return context.res.json({
+      'database': databaseId,
       'collections': collections,
       'total': response.total,
     });
