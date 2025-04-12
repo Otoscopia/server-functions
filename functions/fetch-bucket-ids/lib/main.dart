@@ -45,6 +45,7 @@ Future<dynamic> main(final context) async {
           'event': 'get.function.bucket-ids',
           'location': body['location'],
           'ip': body['ip'],
+          'device': body['device']
         },
         permissions: [
           Permission.read(Role.user(body['user'])),
@@ -56,10 +57,10 @@ Future<dynamic> main(final context) async {
       'collections': buckets,
       'total': response.total,
     });
-  } catch (e) {
+  } on AppwriteException catch (e) {
     return context.res.json({
       'message': 'Could not list collections',
-      'error': e.toString(),
-    }, status: 500);
+      'error': e.message,
+    });
   }
 }

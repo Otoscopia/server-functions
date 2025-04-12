@@ -16,8 +16,7 @@ Future<dynamic> main(final context) async {
   context.log("Initializing Appwrite Services...");
   functions = Functions(client);
 
-  context.log("Decoding body...");
-  final body = json.decode(context.req.bodyRaw);
+  final body = context.req.bodyRaw;
 
   try {
     context.log('Fetching Functions...');
@@ -31,14 +30,24 @@ Future<dynamic> main(final context) async {
     final collections = await executeFunction(collectionsId, body);
     final buckets = await executeFunction(bucketsId, body);
 
+    context.log('Converting functions to readable ids');
+    context.log('Converting response to readable collections...');
+    final functionIds = executions.functions
+        .map((function) => {'id': function.$id, 'name': function.name})
+        .toList();
+
     return context.res.json({
-      'buckets': json.decode(collections.responseBody),
-      'collections': json.decode(buckets.responseBody),
+      'databases': json.decode(collections.responseBody),
+      'buckets': json.decode(buckets.responseBody),
+      'functions': {
+        'functions': functionIds,
+        'total': executions.total,
+      }
     });
-  } catch (e) {
+  } on AppwriteException catch (e) {
     return context.res.json({
       'message': 'Could not execute functions',
-      'error': e.toString(),
-    }, status: 500);
+      'error': e.message,
+    });
   }
 }

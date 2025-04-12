@@ -1,22 +1,20 @@
-# ⚡ Dart Starter Function
-
-A simple starter function. Edit `lib/main.dart` to get started and create something awesome! 🚀
+# heartbeat-status
 
 ## 🧰 Usage
 
-### GET /
+### GET /ping
 
-- Returns a "Hello, World!" message.
+- Returns a "Pong" message.
 
 **Response**
 
 Sample `200` Response:
 
 ```text
-Hello, World!
+Pong
 ```
 
-### POST, PUT, PATCH, DELETE /
+### GET, POST, PUT, PATCH, DELETE /
 
 - Returns a "Learn More" JSON response.
 
@@ -36,7 +34,7 @@ Sample `200` Response:
 ## ⚙️ Configuration
 
 | Setting           | Value           |
-|-------------------|-----------------|
+| ----------------- | --------------- |
 | Runtime           | Dart (2.17)     |
 | Entrypoint        | `lib/main.dart` |
 | Build Commands    | `dart pub get`  |

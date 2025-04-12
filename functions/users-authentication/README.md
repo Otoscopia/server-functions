@@ -1,6 +1,4 @@
-# ⚡ Dart Starter Function
-
-A simple starter function. Edit `lib/main.dart` to get started and create something awesome! 🚀
+# users-authentication
 
 ## 🧰 Usage
 

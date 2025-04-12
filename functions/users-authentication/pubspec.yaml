@@ -1,8 +1,8 @@
-name: starter_template
+name: user_authentication
 version: 1.0.0
 
 environment:
-  sdk: ^3.0.0
+  sdk: ^3.5.0
 
 dependencies:
   dart_appwrite: 14.0.0
