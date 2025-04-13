@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
@@ -16,6 +17,10 @@ Future<dynamic> main(final context) async {
 
   final String database = Platform.environment["DATABASE"] ?? "";
   final String userCollection = Platform.environment["USER_COLLECTION"] ?? "";
+  final String logsCollection = Platform.environment["LOGS_COLLECTION"] ?? "";
+
+  context.log("Decoding body...");
+  final body = json.decode(context.req.bodyRaw);
 
   try {
     context.log("Fetching Users...");
@@ -57,6 +62,25 @@ Future<dynamic> main(final context) async {
         }
       }
     }
+
+    context.log('Logging user data');
+    await db.createDocument(
+      databaseId: database,
+      collectionId: logsCollection,
+      documentId: ID.unique(),
+      data: {
+        'user': body['user'],
+        'event': 'get.function.user-account-lifecycle',
+        'location': body['location'],
+        'ip': body['ip'],
+        'device': body['device'],
+        'resource': 'Users Collection'
+      },
+      permissions: [
+        Permission.read(Role.user(body['user'])),
+        Permission.read(Role.label('admin')),
+      ],
+    );
 
     return context.res.json({
       'message': 'Users fetched successfully',
