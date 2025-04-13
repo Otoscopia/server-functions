@@ -45,7 +45,8 @@ Future<dynamic> main(final context) async {
           'event': 'get.function.bucket-ids',
           'location': body['location'],
           'ip': body['ip'],
-          'device': body['device']
+          'device': body['device'],
+          'resource': body['resource']
         },
         permissions: [
           Permission.read(Role.user(body['user'])),
