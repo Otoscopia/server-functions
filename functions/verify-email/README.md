@@ -1,4 +1,4 @@
-# users-authentication
+# verify-email
 
 ## 🧰 Usage
 

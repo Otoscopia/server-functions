@@ -24,7 +24,10 @@ Future<dynamic> main(final context) async {
 
   try {
     context.log("Fetching Users...");
-    final response = await users.list();
+    final response = await users.list(queries: [
+      Query.limit(body['limit']),
+      Query.offset(body['offset']),
+    ]);
 
     if (response.total == 0) {
       return context.res.json({
@@ -52,6 +55,14 @@ Future<dynamic> main(final context) async {
           'role': response.data['role']['key'],
           'activity_status': response.data['activity_status']['status']['name'],
           'account_status': response.data['account_status']['status']['name'],
+          'email': response.data['email'],
+          'verification': response.data['is_verified'],
+          'is_phone_verified': response.data['is_phone_verified'],
+          'is_email_verified': response.data['is_email_verified'],
+          'mfa': response.data['mfa_enabled'],
+          'last_password_updated': response.data['last_password_updated'],
+          'password_expiration': response.data['account_status']
+              ['password_expiration'],
           'created_at': user.$createdAt,
         });
       } on AppwriteException catch (e) {
@@ -70,11 +81,11 @@ Future<dynamic> main(final context) async {
       documentId: ID.unique(),
       data: {
         'user': body['user'],
-        'event': 'get.function.user-account-lifecycle',
+        'role': body['role'],
+        'event': '6803b3b2002503ee14f4',
         'location': body['location'],
         'ip': body['ip'],
         'device': body['device'],
-        'resource': 'Users Collection'
       },
       permissions: [
         Permission.read(Role.user(body['user'])),

@@ -13,29 +13,30 @@ Future<dynamic> main(final context) async {
 
   context.log("Initializing Appwrite Services...");
   final databases = Databases(client);
-  final storage = Storage(client);
 
   final databaseId = Platform.environment['DATABASE'] ?? '';
   final logsId = Platform.environment['LOGS_COLLECTION'] ?? '';
+  final eventsId = Platform.environment['EVENTS_COLLECTION'] ?? '';
 
   context.log("Decoding body...");
   final body = json.decode(context.req.bodyRaw);
 
   try {
-    context.log('Fetching Buckets...');
-    final response = await storage.listBuckets();
+    context.log('Fetching Events Collections...');
+    final response = await databases.listDocuments(
+        databaseId: databaseId, collectionId: eventsId);
 
-    context.log('Converting response to readable buckets...');
-    final buckets = response.buckets
-        .map((bucket) => {
-              'id': bucket.$id,
-              'name': bucket.name,
-              'allowed_files': bucket.allowedFileExtensions,
-            })
-        .toList();
+    context.log('Converting to readable documents...');
+    final events = response.documents.map((e) {
+      return {
+        'id': e.$id,
+        'method': e.data['method'],
+        'resource': e.data['resource'],
+        'activity': e.data['activity']
+      };
+    }).toList();
 
     context.log('Logging user data');
-
     await databases.createDocument(
         databaseId: databaseId,
         collectionId: logsId,
@@ -43,7 +44,7 @@ Future<dynamic> main(final context) async {
         data: {
           'user': body['user'],
           'role': body['role'],
-          'event': '6803b3560005c48f7e92',
+          'event': '6803c1f600272f1719e6',
           'location': body['location'],
           'ip': body['ip'],
           'device': body['device'],
@@ -55,7 +56,7 @@ Future<dynamic> main(final context) async {
 
     context.log('Function execution completed');
     return context.res.json({
-      'collections': buckets,
+      'events': events,
       'total': response.total,
     });
   } on AppwriteException catch (e) {

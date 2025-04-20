@@ -14,7 +14,7 @@ Future<dynamic> main(final context) async {
   context.log("Initializing Appwrite Services...");
   final databases = Databases(client);
 
-  final databaseId = Platform.environment['APPWRITE_DATABASE'] ?? '';
+  final databaseId = Platform.environment['DATABASE'] ?? '';
 
   context.log("Decoding body...");
   final body = json.decode(context.req.bodyRaw);
@@ -38,11 +38,11 @@ Future<dynamic> main(final context) async {
         documentId: ID.unique(),
         data: {
           'user': body['user'],
-          'event': 'get.function.collection-ids',
+          'role': body['role'],
+          'event': '6803b337000a2a24b63b',
           'location': body['location'],
           'ip': body['ip'],
           'device': body['device'],
-          'resource': body['resource']
         },
         permissions: [
           Permission.read(Role.user(body['user'])),

@@ -25,10 +25,12 @@ Future<dynamic> main(final context) async {
     context.log('Filtering collections by IDs...');
     final collectionsId = filterFunction('fetch-collection-ids', executions);
     final bucketsId = filterFunction('fetch-bucket-ids', executions);
+    final eventsId = filterFunction('fetch-event-ids', executions);
 
     context.log('Executing functions...');
     final collections = await executeFunction(collectionsId, body);
     final buckets = await executeFunction(bucketsId, body);
+    final events = await executeFunction(eventsId, body);
 
     context.log('Converting functions to readable ids');
     context.log('Converting response to readable collections...');
@@ -39,6 +41,7 @@ Future<dynamic> main(final context) async {
     return context.res.json({
       'databases': json.decode(collections.responseBody),
       'buckets': json.decode(buckets.responseBody),
+      'events': json.decode(events.responseBody),
       'functions': {
         'functions': functionIds,
         'total': executions.total,
