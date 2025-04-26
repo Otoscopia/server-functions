@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dart_appwrite/dart_appwrite.dart';
 
@@ -7,34 +6,36 @@ import 'package:dart_appwrite/dart_appwrite.dart';
 Future<dynamic> main(final context) async {
   // You can use the Appwrite SDK to interact with other services
   // For this example, we're using the Users service
-  final client = Client()
-      .setEndpoint(Platform.environment['APPWRITE_FUNCTION_API_ENDPOINT'] ?? '')
-      .setProject(Platform.environment['APPWRITE_FUNCTION_PROJECT_ID'] ?? '')
+  final oldClient = Client()
+      .setEndpoint('http://165.232.160.201/v1')
+      .setProject('65a2440134e8348967fa')
       .setKey(context.req.headers['x-appwrite-key'] ?? '');
-  final database = Databases(client);
+  final oldDatabase = Databases(oldClient);
 
   final oldDB = "65cc1cdadb3c9b2ded7a";
-  final newDB = "6635e2ea0018d0f415e9";
 
-  final oldData = await database.listDocuments(
+  final oldData = await oldDatabase.listDocuments(
       databaseId: oldDB,
-      collectionId: "65cc1f4eab9aca07bca7",
+      collectionId: "65cc20961d680cef0cba",
       queries: [Query.limit(1000)]);
+
+  final newClient = Client()
+      .setEndpoint('https://cloud.otoscopia.ph/v1')
+      .setProject('67ecc3d2001aa5bc3e9b')
+      .setKey(context.req.headers['x-appwrite-key'] ?? '');
+  final newDatabase = Databases(newClient);
+
+  final newDB = "6635e2ea0018d0f415e9";
 
   context.log('mapping old school data');
   for (final school in oldData.documents) {
-    context.log('creating users new db');
+    context.log(
+        'creating users new db, ${school.data['\$id']}, ${school.data['school']}');
 
-    await database.createDocument(
+    await newDatabase.updateDocument(
         databaseId: newDB,
-        collectionId: '67fa3eb2001dc79e4260',
+        collectionId: '67ee3a8b001086ef439a',
         documentId: school.data['\$id'],
-        data: {
-          'name': school.data['name'],
-          'abbr': school.data['abbr'],
-          'code': school.data['code'],
-          'address': school.data['address'],
-          'is_active': school.data['isActive'],
-        });
+        data: {'school': school.data['school']['\$id']});
   }
 }

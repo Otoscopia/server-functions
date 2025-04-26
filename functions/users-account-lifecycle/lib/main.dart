@@ -18,6 +18,10 @@ Future<dynamic> main(final context) async {
   final String database = Platform.environment["DATABASE"] ?? "";
   final String userCollection = Platform.environment["USER_COLLECTION"] ?? "";
   final String logsCollection = Platform.environment["LOGS_COLLECTION"] ?? "";
+  final String accountStatusCollection =
+      Platform.environment["ACCOUNT_CONFIG_COLLECTION"] ?? "";
+  final String accountStatusDocument =
+      Platform.environment["ACCOUNT_CONFIG_DOCUMENT"] ?? "";
 
   context.log("Decoding body...");
   final body = json.decode(context.req.bodyRaw);
@@ -28,6 +32,11 @@ Future<dynamic> main(final context) async {
       Query.limit(body['limit']),
       Query.offset(body['offset']),
     ]);
+
+    final accounntConfigurations = await db.getDocument(
+        databaseId: database,
+        collectionId: accountStatusCollection,
+        documentId: accountStatusDocument);
 
     if (response.total == 0) {
       return context.res.json({
@@ -61,8 +70,8 @@ Future<dynamic> main(final context) async {
           'is_email_verified': response.data['is_email_verified'],
           'mfa': response.data['mfa_enabled'],
           'last_password_updated': response.data['last_password_updated'],
-          'password_expiration': response.data['account_status']
-              ['password_expiration'],
+          'password_expiration':
+              accounntConfigurations.data['password_expiration']['value'],
           'created_at': user.$createdAt,
         });
       } on AppwriteException catch (e) {
